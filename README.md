@@ -35,18 +35,7 @@ Sonic Odyssey Bot is a Node.js application for sending SOL (Solana) cryptocurren
    yarn install
    ```
 
-4. Set up environment variables:
-
-   Create a `.env` file in the root of your project and define the following variables:
-
-   ```plaintext
-   SEED_PHRASE=your_seed_phrase_here
-   DEVNET_URL=https://devnet.sonic.game/
-   ```
-
-   Replace `your_seed_phrase_here` with your actual seed phrase.
-
-5. Prepare input files:
+4. Prepare input files:
 
    - Create `accounts.json` with an array of seed phrases.
    - Create `privateKeys.json` with an array of private keys (base58 encoded).
