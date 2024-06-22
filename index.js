@@ -52,7 +52,18 @@ const { displayHeader } = require('./src/displayUtils');
   }
 
   const randomAddresses = generateRandomAddresses(addressCount);
-  const amountToSend = 0.001;
+
+  const defaultAmountToSend = 0.001;
+  const amountInput = readlineSync.question(
+    `Enter the amount of SOL to send (default is ${defaultAmountToSend} SOL): `
+  );
+  const amountToSend = amountInput
+    ? parseFloat(amountInput)
+    : defaultAmountToSend;
+
+  if (isNaN(amountToSend) || amountToSend <= 0) {
+    throw new Error(colors.red('Invalid amount specified'));
+  }
 
   for (const [index, seedOrKey] of seedPhrasesOrKeys.entries()) {
     let fromKeypair;
