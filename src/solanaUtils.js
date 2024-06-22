@@ -54,6 +54,5 @@ module.exports = {
   DEVNET_URL,
   connection,
   PublicKey,
-  connection,
   LAMPORTS_PER_SOL,
 };
