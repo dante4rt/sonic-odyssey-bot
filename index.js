@@ -8,6 +8,8 @@ const {
   getKeypairFromSeed,
   getKeypairFromPrivateKey,
   PublicKey,
+  connection,
+  LAMPORTS_PER_SOL,
 } = require('./src/solanaUtils');
 
 const { displayHeader } = require('./src/displayUtils');
@@ -52,7 +54,49 @@ const { displayHeader } = require('./src/displayUtils');
   }
 
   const randomAddresses = generateRandomAddresses(addressCount);
-  const amountToSend = 0.001;
+
+  let rentExemptionAmount;
+  try {
+    rentExemptionAmount =
+      (await connection.getMinimumBalanceForRentExemption(0)) /
+      LAMPORTS_PER_SOL;
+    console.log(
+      colors.yellow(
+        `Minimum balance required for rent exemption: ${rentExemptionAmount} SOL`
+      )
+    );
+  } catch (error) {
+    console.error(
+      colors.red(
+        'Failed to fetch minimum balance for rent exemption. Using default value.'
+      )
+    );
+    rentExemptionAmount = 0.001;
+  }
+
+  let amountToSend;
+  do {
+    const amountInput = readlineSync.question(
+      'Enter the amount of SOL to send (default is 0.001 SOL): '
+    );
+    amountToSend = amountInput ? parseFloat(amountInput) : 0.001;
+
+    if (isNaN(amountToSend) || amountToSend < rentExemptionAmount) {
+      console.log(
+        colors.red(
+          `Invalid amount specified. The amount must be at least ${rentExemptionAmount} SOL to avoid rent issues.`
+        )
+      );
+      console.log(
+        colors.yellow(
+          `Suggested amount to send: ${Math.max(
+            0.001,
+            rentExemptionAmount
+          )} SOL`
+        )
+      );
+    }
+  } while (isNaN(amountToSend) || amountToSend < rentExemptionAmount);
 
   for (const [index, seedOrKey] of seedPhrasesOrKeys.entries()) {
     let fromKeypair;
