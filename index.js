@@ -52,11 +52,6 @@ const { displayHeader } = require('./src/displayUtils');
   }
 
   const randomAddresses = generateRandomAddresses(addressCount);
-  console.log(
-    colors.blue(`Generated ${addressCount} random addresses:`),
-    randomAddresses
-  );
-
   const amountToSend = 0.001;
 
   for (const [index, seedOrKey] of seedPhrasesOrKeys.entries()) {
