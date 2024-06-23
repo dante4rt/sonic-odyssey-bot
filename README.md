@@ -8,6 +8,7 @@ Sonic Odyssey Bot is a Node.js application for sending SOL (Solana) cryptocurren
 - **Input Methods**: Supports input via seed phrases or private keys.
 - **Random Address Generation**: Generates a specified number of random addresses for sending transactions.
 - **Adjustable Amount of SOL**: Allows users to specify the amount of SOL to send in each transaction.
+- **Transaction Delay**: Allows users to specify a delay between each transaction.
 
 ## Prerequisites
 
@@ -65,7 +66,12 @@ Run the bot using Node.js:
 npm start
 ```
 
-Follow the prompts to select the input method (0 for seed phrase, 1 for private key), specify the number of random addresses to generate, and enter the amount of SOL to send in each transaction.
+Follow the prompts to:
+
+1. Select the input method (0 for seed phrase, 1 for private key).
+2. Specify the number of random addresses to generate.
+3. Enter the amount of SOL to send in each transaction.
+4. Enter the delay between each transaction in milliseconds (default is 1000ms).
 
 ## Contributing
 
