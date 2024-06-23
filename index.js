@@ -14,6 +14,8 @@ const {
 
 const { displayHeader } = require('./src/displayUtils');
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 (async () => {
   displayHeader();
   const method = readlineSync.question(
@@ -98,6 +100,16 @@ const { displayHeader } = require('./src/displayUtils');
     }
   } while (isNaN(amountToSend) || amountToSend < rentExemptionAmount);
 
+  const defaultDelay = 1000;
+  const delayInput = readlineSync.question(
+    `Enter the delay between transactions in milliseconds (default is ${defaultDelay}ms): `
+  );
+  const delayBetweenTx = delayInput ? parseInt(delayInput, 10) : defaultDelay;
+
+  if (isNaN(delayBetweenTx) || delayBetweenTx < 0) {
+    throw new Error(colors.red('Invalid delay specified'));
+  }
+
   for (const [index, seedOrKey] of seedPhrasesOrKeys.entries()) {
     let fromKeypair;
     if (method === '0') {
@@ -123,6 +135,7 @@ const { displayHeader } = require('./src/displayUtils');
       } catch (error) {
         console.error(colors.red(`Failed to send SOL to ${address}:`), error);
       }
+      await delay(delayBetweenTx);
     }
   }
 })();
