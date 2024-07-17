@@ -1,10 +1,13 @@
 # Sonic Odyssey Bot
 
-Sonic Odyssey Bot is a Node.js application for sending SOL (Solana) cryptocurrency transactions using seed phrases or private keys to random addresses.
+Sonic Odyssey Bot is an application designed for interacting with the Sonic Odyssey platform. It supports multiple features including sending SOL (Solana) cryptocurrency transactions, claiming rewards, opening mystery boxes, and daily login operations.
 
 ## Features
 
 - **Transaction Sending**: Sends SOL transactions from multiple accounts to random addresses.
+- **Claim Box**: Automates the process of claiming rewards boxes.
+- **Open Box**: Automates the process of opening mystery boxes.
+- **Daily Login**: Automates the daily login process.
 - **Input Methods**: Supports input via seed phrases or private keys.
 - **Random Address Generation**: Generates a specified number of random addresses for sending transactions.
 - **Adjustable Amount of SOL**: Allows users to specify the amount of SOL to send in each transaction.
@@ -66,13 +69,27 @@ Run the bot using Node.js:
 npm start
 ```
 
+or
+
+```bash
+npm run claim
+```
+
 Follow the prompts to:
 
 1. Select the input method (0 for seed phrase, 1 for private key).
 2. Specify the number of random addresses to generate.
 3. Enter the amount of SOL to send in each transaction.
 4. Enter the delay between each transaction in milliseconds (default is 1000ms).
+5. Choose an operation:
+   - 1: Claim Box
+   - 2: Open Box
+   - 3: Daily Login
 
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or pull requests for any improvements or fixes.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
