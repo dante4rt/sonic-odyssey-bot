@@ -46,6 +46,8 @@ function getKeypairFromPrivateKey(privateKey) {
   return Keypair.fromSecretKey(base58.decode(privateKey));
 }
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 module.exports = {
   sendSol,
   generateRandomAddresses,
@@ -55,4 +57,5 @@ module.exports = {
   connection,
   PublicKey,
   LAMPORTS_PER_SOL,
+  delay,
 };

@@ -10,11 +10,10 @@ const {
   PublicKey,
   connection,
   LAMPORTS_PER_SOL,
+  delay,
 } = require('./src/solanaUtils');
 
 const { displayHeader } = require('./src/displayUtils');
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 (async () => {
   displayHeader();
