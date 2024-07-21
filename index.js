@@ -41,7 +41,18 @@ const { displayHeader } = require('./src/displayUtils');
   } else {
     throw new Error(colors.red('Invalid input method selected'));
   }
+  
+  // Prompt user to select a specific private key or seed phrase
+  const selectedIndex = readlineSync.keyInSelect(
+    seedPhrasesOrKeys.map((_, i) => `Account ${i + 1}`),
+    'Select an account:'
+  );
+  if (selectedIndex === -1) {
+    throw new Error(colors.red('No account selected'));
+  }
 
+  const selectedSeedOrKey = seedPhrasesOrKeys[selectedIndex];
+  
   const defaultAddressCount = 100;
   const addressCountInput = readlineSync.question(
     `How many random addresses do you want to generate? (default is ${defaultAddressCount}): `
