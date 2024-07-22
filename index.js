@@ -41,18 +41,22 @@ const { displayHeader } = require('./src/displayUtils');
   } else {
     throw new Error(colors.red('Invalid input method selected'));
   }
-  
-  // Prompt user to select a specific private key or seed phrase
+
+  // Prompt user to select an account
   const selectedIndex = readlineSync.keyInSelect(
     seedPhrasesOrKeys.map((_, i) => `Account ${i + 1}`),
-    'Select an account:'
+    'Select an account to send SOL from:'
   );
+
   if (selectedIndex === -1) {
-    throw new Error(colors.red('No account selected'));
+    console.log(colors.yellow('No account selected. Exiting...'));
+    process.exit(0);
   }
 
   const selectedSeedOrKey = seedPhrasesOrKeys[selectedIndex];
-  
+  const fromKeypair = method === '0' ? await getKeypairFromSeed(selectedSeedOrKey) : getKeypairFromPrivateKey(selectedSeedOrKey);
+  console.log(colors.yellow(`Sending SOL from account ${selectedIndex + 1}: ${fromKeypair.publicKey.toString()}`));
+
   const defaultAddressCount = 100;
   const addressCountInput = readlineSync.question(
     `How many random addresses do you want to generate? (default is ${defaultAddressCount}): `
@@ -112,7 +116,7 @@ const { displayHeader } = require('./src/displayUtils');
 
   const defaultDelay = 1000;
   const delayInput = readlineSync.question(
-    `Enter the delay between transactions in milliseconds (default is ${defaultDelay}ms): `
+    `Enter the delay between transactions in milliseconds (default is ${defaultDelay}msms): `
   );
   const delayBetweenTx = delayInput ? parseInt(delayInput, 10) : defaultDelay;
 
@@ -120,32 +124,16 @@ const { displayHeader } = require('./src/displayUtils');
     throw new Error(colors.red('Invalid delay specified'));
   }
 
-  for (const [index, seedOrKey] of seedPhrasesOrKeys.entries()) {
-    let fromKeypair;
-    if (method === '0') {
-      fromKeypair = await getKeypairFromSeed(seedOrKey);
-    } else {
-      fromKeypair = getKeypairFromPrivateKey(seedOrKey);
+  for (const address of randomAddresses) {
+    const toPublicKey = new PublicKey(address);
+    try {
+      await sendSol(fromKeypair, toPublicKey, amountToSend);
+      console.log(
+        colors.green(`Successfully sent ${amountToSend} SOL to ${address}`)
+      );
+    } catch (error) {
+      console.error(colors.red(`Failed to send SOL to ${address}:`), error);
     }
-    console.log(
-      colors.yellow(
-        `Sending SOL from account ${
-          index + 1
-        }: ${fromKeypair.publicKey.toString()}`
-      )
-    );
-
-    for (const address of randomAddresses) {
-      const toPublicKey = new PublicKey(address);
-      try {
-        await sendSol(fromKeypair, toPublicKey, amountToSend);
-        console.log(
-          colors.green(`Successfully sent ${amountToSend} SOL to ${address}`)
-        );
-      } catch (error) {
-        console.error(colors.red(`Failed to send SOL to ${address}:`), error);
-      }
-      await delay(delayBetweenTx);
-    }
+    await delay(delayBetweenTx);
   }
 })();
