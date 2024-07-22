@@ -116,7 +116,7 @@ const { displayHeader } = require('./src/displayUtils');
 
   const defaultDelay = 1000;
   const delayInput = readlineSync.question(
-    `Enter the delay between transactions in milliseconds (default is ${defaultDelay}msms): `
+    `Enter the delay between transactions in milliseconds (default is ${defaultDelay}ms): `
   );
   const delayBetweenTx = delayInput ? parseInt(delayInput, 10) : defaultDelay;
 
