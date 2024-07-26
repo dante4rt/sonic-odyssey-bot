@@ -4,7 +4,7 @@ const solana = require('@solana/web3.js');
 const axios = require('axios').default;
 const base58 = require('bs58');
 const nacl = require('tweetnacl');
-const { connection } = require('./src/solanaUtils');
+const { connection, delay } = require('./src/solanaUtils');
 const { HEADERS } = require('./src/headers');
 const { displayHeader } = require('./src/displayUtils');
 const readlineSync = require('readline-sync');
@@ -215,63 +215,103 @@ async function processPrivateKey(privateKey) {
   console.log('');
 }
 
+async function fetchDaily(token) {
+  try {
+    const { data } = await axios({
+      url: 'https://odyssey-api-beta.sonic.game/user/transactions/state/daily',
+      method: 'GET',
+      headers: { ...HEADERS, Authorization: token },
+    });
+
+    return data.data.total_transactions;
+  } catch (error) {
+    console.log(
+      `[ ${moment().format('HH:mm:ss')} ] Error in daily fetching: ${
+        error.response.data.message
+      }`.red
+    );
+  }
+}
+
 async function dailyClaim(token) {
   let counter = 1;
-  let maxCounter = 3;
+  const maxCounter = 3;
 
-  while (counter <= maxCounter) {
-    try {
-      const { data } = await axios({
-        url: 'https://odyssey-api.sonic.game/user/transactions/rewards/claim',
-        method: 'POST',
-        headers: { ...HEADERS, Authorization: token },
-        data: {
-          stage: counter,
-        },
-      });
+  try {
+    const fetchDailyResponse = await fetchDaily(token);
 
-      console.log(
-        `[ ${moment().format(
-          'HH:mm:ss'
-        )} ] Daily claim for stage ${counter} has been successful! Stage: ${counter} | Status: ${
-          data.data.claimed
-        }`
-      );
+    console.log(
+      `[ ${moment().format(
+        'HH:mm:ss'
+      )} ] Your total transactions: ${fetchDailyResponse}`.blue
+    );
 
-      counter++;
-    } catch (error) {
-      if (error.response.data.message === 'interact task not finished') {
-        console.log(
-          `[ ${moment().format(
-            'HH:mm:ss'
-          )} ] Error claiming for stage ${counter}: ${
-            error.response.data.message
-          }`.red
-        );
-        counter++;
-      } else if (
-        error.response &&
-        (error.response.data.code === 100015 ||
-          error.response.data.code === 100016)
-      ) {
-        console.log(
-          `[ ${moment().format(
-            'HH:mm:ss'
-          )} ] Already claimed for stage ${counter}, proceeding to the next stage...`
-            .cyan
-        );
-        counter++;
-      } else {
-        console.log(
-          `[ ${moment().format('HH:mm:ss')} ] Error claiming: ${
-            error.response.data.message
-          }`.red
-        );
+    if (fetchDailyResponse > 10) {
+      while (counter <= maxCounter) {
+        try {
+          const { data } = await axios({
+            url: 'https://odyssey-api.sonic.game/user/transactions/rewards/claim',
+            method: 'POST',
+            headers: { ...HEADERS, Authorization: token },
+            data: {
+              stage: counter,
+            },
+          });
+
+          console.log(
+            `[ ${moment().format(
+              'HH:mm:ss'
+            )} ] Daily claim for stage ${counter} has been successful! Stage: ${counter} | Status: ${
+              data.data.claimed
+            }`.green
+          );
+
+          counter++;
+        } catch (error) {
+          if (error.response.data.message === 'interact task not finished') {
+            console.log(
+              `[ ${moment().format(
+                'HH:mm:ss'
+              )} ] Error claiming for stage ${counter}: ${
+                error.response.data.message
+              }`.red
+            );
+            counter++;
+          } else if (
+            error.response &&
+            (error.response.data.code === 100015 ||
+              error.response.data.code === 100016)
+          ) {
+            console.log(
+              `[ ${moment().format(
+                'HH:mm:ss'
+              )} ] Already claimed for stage ${counter}, proceeding to the next stage...`
+                .cyan
+            );
+            counter++;
+          } else {
+            console.log(
+              `[ ${moment().format('HH:mm:ss')} ] Error claiming: ${
+                error.response.data.message
+              }`.red
+            );
+          }
+        } finally {
+          await delay(1000);
+        }
       }
-    }
-  }
 
-  console.log(`All stages processed or max stage reached.`.green);
+      console.log(`All stages processed or max stage reached.`.green);
+    } else {
+      throw new Error('Not enough transactions to claim rewards.');
+    }
+  } catch (error) {
+    console.log(
+      `[ ${moment().format('HH:mm:ss')} ] Error in daily claim: ${
+        error.message
+      }`.red
+    );
+  }
 }
 
 async function dailyLogin(token, keypair, retries = 3) {
