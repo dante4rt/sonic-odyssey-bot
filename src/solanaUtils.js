@@ -21,7 +21,9 @@ async function setNetType(netType) {
   NETWORK_TYPE = netType;
   connection = new Connection((NETWORK_TYPE == 2) ? TESTNET_URL : DEVNET_URL, 'confirmed'); // 1 for devnet  ,  2 for testnet
 }
-
+function getConnection() {
+  return connection;
+}
 function getNetType() {
   return NETWORK_TYPE;
 }
@@ -68,7 +70,7 @@ module.exports = {
   getNetType,
   DEVNET_URL,
   TESTNET_URL,
-  connection,
+  getConnection,
   PublicKey,
   LAMPORTS_PER_SOL,
   delay,

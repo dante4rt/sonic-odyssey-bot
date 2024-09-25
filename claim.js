@@ -4,7 +4,7 @@ const solana = require('@solana/web3.js');
 const axios = require('axios').default;
 const base58 = require('bs58');
 const nacl = require('tweetnacl');
-const { connection, delay, getNetType } = require('./src/solanaUtils');
+const { getConnection, delay, getNetType } = require('./src/solanaUtils');
 const { HEADERS } = require('./src/headers');
 const { displayHeader, getNetworkTypeFromUser } = require('./src/displayUtils');
 const readlineSync = require('readline-sync');
@@ -13,6 +13,7 @@ const moment = require('moment');
 const PRIVATE_KEYS = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
 
 const apiBaseUrl = 'https://odyssey-api-beta.sonic.game';
+var connection;
 
 function getKeypair(privateKey) {
   const decodedPrivateKey = base58.decode(privateKey);
@@ -92,7 +93,6 @@ async function openMysteryBox(token, keypair, retries = 3) {
       method: 'GET',
       headers: { ...HEADERS, Authorization: token },
     });
-
     const txBuffer = Buffer.from(data.data.hash, 'base64');
     const tx = solana.Transaction.from(txBuffer);
     tx.partialSign(keypair);
@@ -107,7 +107,8 @@ async function openMysteryBox(token, keypair, retries = 3) {
     });
 
     return response.data;
-  } catch (error) {
+  }
+  catch (error) {
     if (retries > 0) {
       console.log(`Retrying opening mystery box... (${retries} retries left)`.yellow);
       await new Promise((res) => setTimeout(res, 1000));
@@ -287,7 +288,7 @@ async function dailyLogin(token, keypair, retries = 3) {
   try {
     displayHeader();
     getNetworkTypeFromUser();
-
+    connection = getConnection();
     for (let i = 0; i < PRIVATE_KEYS.length; i++) {
       const privateKey = PRIVATE_KEYS[i];
       await processPrivateKey(privateKey);
