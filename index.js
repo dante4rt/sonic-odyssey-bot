@@ -13,12 +13,12 @@ const {
   delay,
 } = require('./src/solanaUtils');
 
-const { displayHeader } = require('./src/displayUtils');
+const { displayHeader, getNetworkTypeFromUser } = require('./src/displayUtils');
 
 (async () => {
   displayHeader();
-  const method = readlineSync.question(
-    'Select input method (0 for seed phrase, 1 for private key): '
+  getNetworkTypeFromUser();
+  const method = readlineSync.question('Select input method (0 for seed phrase, 1 for private key): '
   );
 
   let seedPhrasesOrKeys;
@@ -118,8 +118,7 @@ const { displayHeader } = require('./src/displayUtils');
     }
     console.log(
       colors.yellow(
-        `Sending SOL from account ${
-          index + 1
+        `Sending SOL from account ${index + 1
         }: ${fromKeypair.publicKey.toString()}`
       )
     );

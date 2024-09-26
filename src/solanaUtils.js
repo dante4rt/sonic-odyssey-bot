@@ -13,7 +13,20 @@ const base58 = require('bs58');
 const colors = require('colors');
 
 const DEVNET_URL = 'https://devnet.sonic.game/';
-const connection = new Connection(DEVNET_URL, 'confirmed');
+const TESTNET_URL = 'https://api.testnet.sonic.game/';
+var NETWORK_TYPE = 2;
+var connection;
+
+async function setNetType(netType) {
+  NETWORK_TYPE = netType;
+  connection = new Connection((NETWORK_TYPE == 2) ? TESTNET_URL : DEVNET_URL, 'confirmed'); // 1 for devnet  ,  2 for testnet
+}
+function getConnection() {
+  return connection;
+}
+function getNetType() {
+  return NETWORK_TYPE;
+}
 
 async function sendSol(fromKeypair, toPublicKey, amount) {
   const transaction = new Transaction().add(
@@ -53,8 +66,11 @@ module.exports = {
   generateRandomAddresses,
   getKeypairFromSeed,
   getKeypairFromPrivateKey,
+  setNetType,
+  getNetType,
   DEVNET_URL,
-  connection,
+  TESTNET_URL,
+  getConnection,
   PublicKey,
   LAMPORTS_PER_SOL,
   delay,
