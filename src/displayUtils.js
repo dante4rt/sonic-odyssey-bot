@@ -1,5 +1,5 @@
 require('colors');
-const readlineSync = require('readline-sync');
+const inquirer = require('inquirer');
 const { setNetType } = require('./solanaUtils');
 
 function displayHeader() {
@@ -12,18 +12,23 @@ function displayHeader() {
   console.log();
 }
 
-function getNetworkTypeFromUser() {
-  const net = readlineSync.question('Select network type (1 for Devnet, 2 for Testnet): '.blue);
+async function getNetworkTypeFromUser() {
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'network',
+      message: 'Select network type:'.blue,
+      choices: [
+        { name: 'Devnet', value: 1 },
+        { name: 'Testnet', value: 2 },
+      ],
+    },
+  ]);
 
-  if (net == '1') {
-    setNetType(1);
-  }
-  else if (net == '2') {
-    setNetType(2);
-  }
+  setNetType(answers.network);
 }
 
 module.exports = {
   displayHeader,
-  getNetworkTypeFromUser
+  getNetworkTypeFromUser,
 };
