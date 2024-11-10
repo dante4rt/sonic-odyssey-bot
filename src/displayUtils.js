@@ -20,7 +20,8 @@ async function getNetworkTypeFromUser() {
       message: 'Select network type:'.blue,
       choices: [
         { name: 'Devnet', value: 1 },
-        { name: 'Testnet', value: 2 },
+        { name: 'Testnet-v0', value: 2 },
+        { name: 'Testnet-v1', value: 3 },
       ],
     },
   ]);

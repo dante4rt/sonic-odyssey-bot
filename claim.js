@@ -25,7 +25,7 @@ async function getToken(privateKey) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 2 ? '/testnet-v1' : '') +
+        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
         '/auth/sonic/challenge',
       params: {
         wallet: getKeypair(privateKey).publicKey,
@@ -47,7 +47,7 @@ async function getToken(privateKey) {
     const response = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 2 ? '/testnet-v1' : '') +
+        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
         '/auth/sonic/authorize',
       method: 'POST',
       headers: HEADERS,
@@ -69,7 +69,7 @@ async function getProfile(token) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 2 ? '/testnet-v1' : '') +
+        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
         '/user/rewards/info',
       method: 'GET',
       headers: { ...HEADERS, Authorization: token },
@@ -106,7 +106,7 @@ async function openMysteryBox(token, keypair, retries = 3) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 2 ? '/testnet-v1' : '') +
+        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
         '/user/rewards/mystery-box/build-tx',
       method: 'GET',
       headers: { ...HEADERS, Authorization: token },
@@ -122,7 +122,7 @@ async function openMysteryBox(token, keypair, retries = 3) {
     const response = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 2 ? '/testnet-v1' : '') +
+        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
         '/user/rewards/mystery-box/open',
       method: 'POST',
       headers: { ...HEADERS, Authorization: token },
@@ -255,7 +255,7 @@ async function fetchDaily(token) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 2 ? '/testnet-v1' : '') +
+        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
         '/user/transactions/state/daily',
       method: 'GET',
       headers: { ...HEADERS, Authorization: token },
@@ -290,7 +290,7 @@ async function dailyClaim(token) {
           const { data } = await axios({
             url:
               apiBaseUrl +
-              (getNetType() == 2 ? '/testnet-v1' : '') +
+              (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
               '/user/transactions/rewards/claim',
             method: 'POST',
             headers: { ...HEADERS, Authorization: token },
@@ -360,7 +360,7 @@ async function dailyLogin(token, keypair) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 2 ? '/testnet-v1' : '') +
+        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
         '/user/check-in/transaction',
       method: 'GET',
       headers: { ...HEADERS, Authorization: token },
@@ -376,7 +376,7 @@ async function dailyLogin(token, keypair) {
     const response = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 2 ? '/testnet-v1' : '') +
+        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
         '/user/check-in',
       method: 'POST',
       headers: { ...HEADERS, Authorization: token },
