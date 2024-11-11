@@ -25,7 +25,11 @@ async function getToken(privateKey) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
+        (getNetType() == 3
+          ? '/testnet-v1'
+          : getNetType() == 2
+          ? '/testnet'
+          : '') +
         '/auth/sonic/challenge',
       params: {
         wallet: getKeypair(privateKey).publicKey,
@@ -47,7 +51,11 @@ async function getToken(privateKey) {
     const response = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
+        (getNetType() == 3
+          ? '/testnet-v1'
+          : getNetType() == 2
+          ? '/testnet'
+          : '') +
         '/auth/sonic/authorize',
       method: 'POST',
       headers: HEADERS,
@@ -69,7 +77,11 @@ async function getProfile(token) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
+        (getNetType() == 3
+          ? '/testnet-v1'
+          : getNetType() == 2
+          ? '/testnet'
+          : '') +
         '/user/rewards/info',
       method: 'GET',
       headers: { ...HEADERS, Authorization: token },
@@ -106,7 +118,11 @@ async function openMysteryBox(token, keypair, retries = 3) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
+        (getNetType() == 3
+          ? '/testnet-v1'
+          : getNetType() == 2
+          ? '/testnet'
+          : '') +
         '/user/rewards/mystery-box/build-tx',
       method: 'GET',
       headers: { ...HEADERS, Authorization: token },
@@ -122,7 +138,11 @@ async function openMysteryBox(token, keypair, retries = 3) {
     const response = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
+        (getNetType() == 3
+          ? '/testnet-v1'
+          : getNetType() == 2
+          ? '/testnet'
+          : '') +
         '/user/rewards/mystery-box/open',
       method: 'POST',
       headers: { ...HEADERS, Authorization: token },
@@ -157,86 +177,81 @@ async function processPrivateKey(privateKey) {
     if (profile.wallet_balance > 0) {
       const balance = profile.wallet_balance / solana.LAMPORTS_PER_SOL;
       const ringBalance = profile.ring;
-
       const availableBoxes = profile.ring_monitor;
+
       console.log(
         `Hello ${publicKey}! Welcome to our bot. Here are your details:`.green
       );
-
       console.log(`Solana Balance: ${balance} SOL`.green);
       console.log(`Ring Balance: ${ringBalance}`.green);
       console.log(`Available Box(es): ${availableBoxes}`.green);
       console.log('');
 
-      const method = readlineSync.question(
-        'Select input method (1 for claim box, 2 for open box, 3 for daily login): '
+      const isAutoFlow = readlineSync.question(
+        'Do you want to use auto flow? (y/n): '
       );
 
-      if (method === '1') {
-        console.log(`[ ${moment().format('HH:mm:ss')} ] Please wait...`.yellow);
-        await dailyClaim(token);
+      console.log('');
+
+      if (isAutoFlow.toLowerCase() === 'y') {
         console.log(
-          `[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan
+          `[ ${moment().format('HH:mm:ss')} ] Starting auto flow...`.yellow
         );
-      } else if (method === '2') {
-        let totalClaim;
-        do {
-          totalClaim = readlineSync.question(
-            `How many boxes do you want to open? (Maximum is: ${availableBoxes}): `
-              .blue
-          );
-
-          if (totalClaim > availableBoxes) {
-            console.log(`You cannot open more boxes than available`.red);
-          } else if (isNaN(totalClaim)) {
-            console.log(`Please enter a valid number`.red);
-          } else {
-            console.log(
-              `[ ${moment().format('HH:mm:ss')} ] Please wait...`.yellow
-            );
-
-            for (let i = 0; i < totalClaim; i++) {
-              const openedBox = await openMysteryBox(
-                token,
-                getKeypair(privateKey)
-              );
-
-              if (openedBox.data.success) {
-                console.log(
-                  `[ ${moment().format(
-                    'HH:mm:ss'
-                  )} ] Box opened successfully! Status: ${
-                    openedBox.status
-                  } | Amount: ${openedBox.data.amount}`.green
-                );
-              }
-            }
-
-            console.log(
-              `[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan
-            );
-          }
-        } while (totalClaim > availableBoxes);
-      } else if (method === '3') {
-        console.log(`[ ${moment().format('HH:mm:ss')} ] Please wait...`.yellow);
-
-        const claimLogin = await dailyLogin(token, getKeypair(privateKey));
-
-        if (claimLogin) {
-          console.log(
-            `[ ${moment().format(
-              'HH:mm:ss'
-            )} ] Daily login has been success! Status: ${
-              claimLogin.status
-            } | Accumulative Days: ${claimLogin.data.accumulative_days}`.green
-          );
-        }
-
-        console.log(
-          `[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan
-        );
+        await runAutoFlow(token, getKeypair(privateKey));
       } else {
-        throw new Error('Invalid input method selected'.red);
+        const method = readlineSync.question(
+          'Select input method (1 for claim box, 2 for open box, 3 for daily login): '
+        );
+
+        console.log('');
+
+        if (method === '1') {
+          console.log(
+            `[ ${moment().format('HH:mm:ss')} ] Claiming daily rewards...`
+              .yellow
+          );
+          await dailyClaim(token);
+          console.log(
+            `[ ${moment().format('HH:mm:ss')} ] Daily claim completed!`.cyan
+          );
+        } else if (method === '2') {
+          let totalClaim;
+          do {
+            totalClaim = readlineSync.question(
+              `How many boxes do you want to open? (Maximum is: ${availableBoxes}): `
+                .blue
+            );
+
+            if (totalClaim > availableBoxes) {
+              console.log(`You cannot open more boxes than available`.red);
+            } else if (isNaN(totalClaim)) {
+              console.log(`Please enter a valid number`.red);
+            } else {
+              console.log(
+                `[ ${moment().format('HH:mm:ss')} ] Opening boxes...`.yellow
+              );
+              await openMultipleBoxes(
+                token,
+                getKeypair(privateKey),
+                totalClaim
+              );
+              console.log(
+                `[ ${moment().format('HH:mm:ss')} ] Box opening completed!`.cyan
+              );
+            }
+          } while (totalClaim > availableBoxes);
+        } else if (method === '3') {
+          console.log(
+            `[ ${moment().format('HH:mm:ss')} ] Performing daily login...`
+              .yellow
+          );
+          await dailyLogin(token, getKeypair(privateKey));
+          console.log(
+            `[ ${moment().format('HH:mm:ss')} ] Daily login completed!`.cyan
+          );
+        } else {
+          throw new Error('Invalid input method selected'.red);
+        }
       }
     } else {
       console.log(
@@ -255,7 +270,11 @@ async function fetchDaily(token) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
+        (getNetType() == 3
+          ? '/testnet-v1'
+          : getNetType() == 2
+          ? '/testnet'
+          : '') +
         '/user/transactions/state/daily',
       method: 'GET',
       headers: { ...HEADERS, Authorization: token },
@@ -290,7 +309,11 @@ async function dailyClaim(token) {
           const { data } = await axios({
             url:
               apiBaseUrl +
-              (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
+              (getNetType() == 3
+                ? '/testnet-v1'
+                : getNetType() == 2
+                ? '/testnet'
+                : '') +
               '/user/transactions/rewards/claim',
             method: 'POST',
             headers: { ...HEADERS, Authorization: token },
@@ -360,7 +383,11 @@ async function dailyLogin(token, keypair) {
     const { data } = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
+        (getNetType() == 3
+          ? '/testnet-v1'
+          : getNetType() == 2
+          ? '/testnet'
+          : '') +
         '/user/check-in/transaction',
       method: 'GET',
       headers: { ...HEADERS, Authorization: token },
@@ -376,7 +403,11 @@ async function dailyLogin(token, keypair) {
     const response = await axios({
       url:
         apiBaseUrl +
-        (getNetType() == 3 ? '/testnet-v1' : getNetType() == 2 ? '/testnet' : '') +
+        (getNetType() == 3
+          ? '/testnet-v1'
+          : getNetType() == 2
+          ? '/testnet'
+          : '') +
         '/user/check-in',
       method: 'POST',
       headers: { ...HEADERS, Authorization: token },
@@ -403,10 +434,51 @@ async function dailyLogin(token, keypair) {
   }
 }
 
+async function openMultipleBoxes(token, keypair, totalClaim) {
+  for (let i = 0; i < totalClaim; i++) {
+    const openedBox = await openMysteryBox(token, keypair);
+
+    if (openedBox.data.success) {
+      console.log(
+        `[ ${moment().format('HH:mm:ss')} ] Box opened successfully! Status: ${
+          openedBox.status
+        } | Amount: ${openedBox.data.amount}`.green
+      );
+    } else {
+      console.log(
+        `[ ${moment().format('HH:mm:ss')} ] All boxes has been opened.`.red
+      );
+    }
+  }
+}
+
+async function runAutoFlow(token, keypair) {
+  while (true) {
+    try {
+      await dailyLogin(token, keypair);
+      await dailyClaim(token);
+      const availableBoxes = (await getProfile(token)).ring_monitor;
+      await openMultipleBoxes(token, keypair, availableBoxes);
+      console.log(
+        `[ ${moment().format('HH:mm:ss')} ] Auto flow completed!`.cyan
+      );
+    } catch (error) {
+      console.log(
+        `[ ${moment().format('HH:mm:ss')} ] Error in auto flow: ${error}`.red
+      );
+    }
+
+    console.log(
+      `\n[ ${moment().format('HH:mm:ss')} ] Waiting 12 hours before next run...`
+        .yellow
+    );
+    await delay(12 * 60 * 60 * 1000);
+  }
+}
+
 (async () => {
   try {
     displayHeader();
-    await getNetworkTypeFromUser();
     connection = getConnection();
 
     for (let i = 0; i < PRIVATE_KEYS.length; i++) {
