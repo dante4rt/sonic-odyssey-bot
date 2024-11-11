@@ -13,13 +13,25 @@ const base58 = require('bs58');
 const colors = require('colors');
 
 const DEVNET_URL = 'https://devnet.sonic.game/';
-const TESTNET_URL = 'https://api.testnet.sonic.game/';
-var NETWORK_TYPE = 2;
+const TESTNET_V0_URL = 'https://api.testnet.v0.sonic.game/';
+const TESTNET_V1_URL = 'https://api.testnet.v1.sonic.game/';
+var NETWORK_TYPE = 3;
 var connection;
 
 async function setNetType(netType) {
   NETWORK_TYPE = netType;
-  connection = new Connection((NETWORK_TYPE == 2) ? TESTNET_URL : DEVNET_URL, 'confirmed'); // 1 for devnet  ,  2 for testnet
+  switch (NETWORK_TYPE) {
+    case 1:// 1 for devnet
+      connection = new Connection(DEVNET_URL, 'confirmed');
+      break;
+    case 2: // 2 for testnet v0
+      connection = new Connection(TESTNET_V0_URL, 'confirmed');
+      break;
+    case 3:// 3 for testnet v1
+    default:
+      connection = new Connection(TESTNET_V1_URL, 'confirmed');
+      break;
+  }
 }
 function getConnection() {
   return connection;
@@ -69,7 +81,8 @@ module.exports = {
   setNetType,
   getNetType,
   DEVNET_URL,
-  TESTNET_URL,
+  TESTNET_V0_URL,
+  TESTNET_V1_URL,
   getConnection,
   PublicKey,
   LAMPORTS_PER_SOL,
